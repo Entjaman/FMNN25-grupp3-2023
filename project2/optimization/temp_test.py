@@ -9,8 +9,8 @@ import numpy as np
 
 from scipy.optimize import basinhopping
 
-from OptimizationProblem import OptimizationProblem
-from Methods import OptimizationMethod
+from optimization_problem import OptimizationProblem
+from methods import OptimizationMethod
 
 #test functions for the hessian approximation. 
 def x_raised_two_function(x):
@@ -43,27 +43,10 @@ problem = OptimizationProblem(x_raised_two_function,grad_x_raised_two_function)
 
 hessian_test = OptimizationMethod(problem)
 
-h_aprox = hessian_test.hessian_aprox(np.array([2], dtype='float64'),0.01)
+h_aprox_test = hessian_test.hessian_aprox(np.array([2], dtype='float64'),0.01)
 
 problem_2 = OptimizationProblem(multi_variable,grad_multi_variable)
 
-hessian_test_2 = OptimizationMethod(problem)
+hessian_test_2 = OptimizationMethod(problem_2)
 
-#h_aprox_2 = hessian_test.hessian_aprox(np.array([2,2], dtype='float64'),0.01)
-
-x = np.array([2,2], dtype='float64')
-step_size = 0.01
-
-a = problem_2.gradient_value(x)
-b = np.array([])
-h_aprox = np.array([])
-for i in range(len(x)):
-    x_temp = x
-    x_temp[i]= x_temp[i] - step_size
-    b = np.append(b,problem_2.gradient_value(x_temp)[i])
-    x_temp[i] = x_temp[i] + step_size
-for i in range(len(x)):
-    for j in range(len(x)):
-        temp_res = (a[i]-b[j])/(x[i]-(x[i]-step_size))
-    h_aprox = np.append(h_aprox,temp_res)
-#h_aprox = np.reshape(h_aprox,(len(x),len(x)))
+h_aprox_2 = hessian_test_2.hessian_aprox(np.array([2,2,2], dtype='float64'),0.01)

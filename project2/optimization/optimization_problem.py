@@ -3,7 +3,7 @@
 #statments incase the input does not match the expectations. 
 
 import numpy as np
-import Methods as OptimizationMethod
+from methods import OptimizationMethod
 
 
 class OptimizationProblem():

@@ -21,11 +21,12 @@ class OptimizationMethod():
             x_temp = x
             x_temp[i]= x_temp[i] - step_size
             b = np.append(b,self.opt_problem.gradient_value(x_temp))
+            x_temp[i]= x_temp[i] + step_size
+        b = np.reshape(b,(len(x),len(x)))
         for i in range(len(x)):
             for j in range(len(x)):
-                temp_res = (a[i]-b[j])/(x[i]-(x[i]-step_size))
-            h_aprox = np.append(h_aprox,temp_res)
-        #h_aprox = (a-b)/(x-step_size)
+                temp_res = (a[i]-b[i][j])/(x[i]-(x[i]-step_size))
+                h_aprox = np.append(h_aprox,temp_res)
         h_aprox = np.reshape(h_aprox,(len(x),len(x)))
         
         return h_aprox
