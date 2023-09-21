@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "project2"
+version = "0.1.0"
+description = "Optimization problem solver for an objective function as input, using popular numerical methods"
+authors = ["Jacob Forsell <jacobzeforsell@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [
+    { include = "optimization"},
+    { include = "tests"},
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+numpy = "^1.26.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.2"
+pytest-mock = "^3.11.1"
+
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.5.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
