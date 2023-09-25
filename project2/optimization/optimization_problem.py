@@ -3,7 +3,7 @@
 #statments incase the input does not match the expectations. 
 
 import numpy as np
-from methods import OptimizationMethod
+#from methods import OptimizationMethod
 
 
 class OptimizationProblem():
@@ -29,8 +29,3 @@ class OptimizationProblem():
         
         return None
     
-    #calls the method class, not done. 
-    def solve_root(self):
-        solver = OptimizationMethod(self)
-        
-        return None
