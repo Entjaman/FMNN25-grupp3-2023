@@ -1,5 +1,4 @@
 import numpy as np
-import optimization_problem
 
 
 class OptimizationMethod():
@@ -32,6 +31,3 @@ class OptimizationMethod():
         return h_aprox
     
     
-    def minimizer(self):
-        
-        return None
