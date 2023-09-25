@@ -3,11 +3,13 @@ from scipy import optimize
 
 # from methods import OptimizationMethod
 # from optimization_problem import OptimizationProblem
-from autograd import hessian
+import chebyquad_problem as cp
+import scipy.optimize as so
+from  scipy import dot,linspace
 
 
 class QuasiNewton:
-    def __init__(self, f_eq, G=np.identity(2), tol=1e-20, maxIters=50):
+    def __init__(self, f_eq, G=np.identity(3), tol=1e-20, maxIters=50):
         self.f_eq = f_eq
         self.G = G
         self.tol = tol
@@ -56,11 +58,11 @@ class QuasiNewton:
 
             #  Compute the change in gradient
             new_gradient = self.f_eq(x_new)
-            z = new_gradient - gradient
+            dr = new_gradient - gradient
 
             # Update the inverse Hessian approximation using Broyden rank-1 update
-            H += np.outer(s - np.dot(H, z), np.dot(H, z)) / np.dot(
-                np.dot(H, z), np.dot(H, z)
+            H += np.outer(s - np.dot(H, dr), np.dot(H, dr)) / np.dot(
+                np.dot(H, dr), np.dot(H, dr)
             )
             gradient = new_gradient
             iterations += 1
@@ -94,50 +96,49 @@ class QuasiNewton:
         return x
 
 
-def objective_function(x):
-    return np.array([x[0] + 2 * x[1] - 2, x[0] ** 2 + 4 * x[1] ** 2 - 4])
+def objective_function(x): # corr 2, 0, 0
+    return np.array([x[0] + 2 * x[1] - 2 + x[2], x[0] ** 2 + 4 * x[1] ** 2 - 4 + x[2],x[0] ** 2 + 4 * x[1] ** 2 - 4 + x[2] ])
 
 
 def main():
-    x = np.array([1.0, 2.0])
-
+   
     # op = OptimizationProblem(fs)
     # om = OptimizationMethod(op)
     # G = om.hessian_aprox(x, 1) # - cannot reshape x of len 2....
     # print(G)
 
-    # G =  hessian(fs)(x)
-    # print(np.array(G))
-
     # G needs to be initialized as a good approximation for the methods to work
     # therefore we need to use the hessian_aprox function here, until then this aprox
     # of the Hessian gives an ok approximation.
-    G = np.array([[1, 2], [2, 16]])
 
-    QN = QuasiNewton(objective_function, G)
+
+    x = np.array([0.0, 0.0, 0.0])
+   # G = np.array([[1, 2], [2, 16]])
+
+    QN = QuasiNewton(cp.chebyquad_fcn,  maxIters=50)
+    #QN = QuasiNewton(objective_function,  maxIters=100)
 
     x_g = QN.good_broyden_minimize(x)
     x_b = QN.bad_broyden_minimize(x)
     x_s = QN.symmetric_broyden_minimize(x) 
 
     print("Good Broyden")
-    print(
-        "x and y:", x_g[0], x_g[1], "\ndiff: ", np.abs(0 - x_g[0]), np.abs(1 - x_g[1])
-    )
+    print("x:", [i for i in x_g])
 
     print("\n\nBad Broyden")
-    print(
-        "x and y:", x_b[0], x_b[1], "\ndiff: ", np.abs(0 - x_b[0]), np.abs(1 - x_b[1])
-    )
+    print("x:", [i for i in x_b])
 
     print("\n\nSymmetric Broyden")
-    print(
-        "x and y:", x_s[0], x_s[1], "\ndiff: ", np.abs(0 - x_s[0]), np.abs(1 - x_s[1])
-    )
-
+    print("x:", [i for i in x_s],  "\n")
     ## test example
-    sol = optimize.broyden1(objective_function, x)
-    print("\n\nGood Broyden Scipy solution", sol)
+    # sol = optimize.broyden1(objective_function, x)
+    #print("\n\nGood Broyden Scipy solution", sol, "\n")
+
+    x_so = so.fmin_bfgs(cp.chebyquad, x)
+
+    print('sicpy opt ', x_so) # [-5.53432000e-09  9.99999994e-01]
+
+   
 
 
 if __name__ == "__main__":
