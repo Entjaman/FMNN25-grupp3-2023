@@ -1,30 +1,30 @@
 import numpy as np
-import scipy.linalg as sla
 from scipy import optimize
-#from methods import OptimizationMethod
-#from optimization_problem import OptimizationProblem
+
+# from methods import OptimizationMethod
+# from optimization_problem import OptimizationProblem
 from autograd import hessian
 
-class GoodBroyden:
-    """ Combines the benefits of Broyden's Rank-1 update with 
-    Sherman-Morrison's formula for numerical stability and faster 
-    convergence."""
 
-    def __init__(self, f_eq, J, tol=1e-10, maxIters=50):
+class QuasiNewton:
+    def __init__(self, f_eq, G=np.identity(2), tol=1e-10, maxIters=50):
         self.f_eq = f_eq
-        self.G = J
+        self.G = G
         self.tol = tol
         self.maxIters = maxIters
 
     def good_broyden_minimize(self, x):
+        """Combines the benefits of Broyden's Rank-1 update with
+        Sherman-Morrison's formula for numerical stability and faster
+        convergence."""
         iterations = 0
         fx = self.f_eq(x)
         G = self.G
 
-         # Check the frobenius norm and max iterations
+        # Check the frobenius norm and max iterations
         while np.linalg.norm(fx) > self.tol and iterations < self.maxIters:
             # Solve for dx using the current Jacobian G
-            dx = np.linalg.solve(G, - fx)
+            dx = np.linalg.solve(G, -fx)
             x = x + dx
             fx_new = self.f_eq(x)
             dk = fx_new - fx
@@ -37,26 +37,16 @@ class GoodBroyden:
 
         return x
 
-    
-class BadBroyden:
-    """ Called bad broyden since it is not as efficient or robust as the 
-    full Broyden update"""
-
-    def __init__(self, gradient_func, G = np.identity(2), tol=1e-10, maxIters=50):
-        self.gradient_func = gradient_func
-        self.G = G
-        self.tol = tol
-        self.maxIters = maxIters
-
     def bad_broyden_minimize(self, x):
+        """Called bad broyden since it is not as efficient or robust as the
+        full Broyden update"""
         iterations = 0
         #  The Jacobian of the gradient is called Hessian and is symmetric.
         H = np.linalg.inv(self.G)
-        gradient = self.gradient_func(x)
+        gradient = self.f_eq(x)
 
         # Check the frobenius norm and max iterations
         while np.linalg.norm(gradient) > self.tol and iterations < self.maxIters:
-
             # Compute the search direction
             s = -np.dot(H, gradient)
 
@@ -64,11 +54,13 @@ class BadBroyden:
             x_new = x + s
 
             #  Compute the change in gradient
-            new_gradient = self.gradient_func(x_new)
-            z = new_gradient - gradient 
-    
+            new_gradient = self.f_eq(x_new)
+            z = new_gradient - gradient
+
             # Update the inverse Hessian approximation using Broyden rank-1 update
-            H = H + np.outer(s - np.dot(H, z), np.dot(H, z)) / np.dot(np.dot(H, z), np.dot(H, z))
+            H = H + np.outer(s - np.dot(H, z), np.dot(H, z)) / np.dot(
+                np.dot(H, z), np.dot(H, z)
+            )
             gradient = new_gradient
             iterations += 1
             x = x_new
@@ -76,10 +68,8 @@ class BadBroyden:
         return x
 
 
-
-def fs(x):
+def objective_function(x):
     return np.array([x[0] + 2 * x[1] - 2, x[0] ** 2 + 4 * x[1] ** 2 - 4])
-
 
 
 def main():
@@ -93,25 +83,30 @@ def main():
     # G =  hessian(fs)(x)
     # print(np.array(G))
 
-    tol = 1e-15
-    
+    # G needs to be initialized as a good approximation for the methods to work
+    # therefore we need to use the hessian_aprox function here, until then this aprox
+    # of the Hessian gives an ok approximation.
     G = np.array([[1, 2], [2, 16]])
 
-    gb = GoodBroyden(fs, G, tol)
-    bb = BadBroyden(fs, G, tol)
+    QN = QuasiNewton(objective_function, G)
 
-    x_g = gb.good_broyden_minimize(x)
-    x_b = bb.bad_broyden_minimize(x)
-  
+    x_g = QN.good_broyden_minimize(x)
+    x_b = QN.bad_broyden_minimize(x)
+
     print("Good Broyden")
-    print("x and y:", x_g[0], x_g[1], "\ndiff: ", np.abs(0-x_g[0]), np.abs(1-x_g[1]))
+    print(
+        "x and y:", x_g[0], x_g[1], "\ndiff: ", np.abs(0 - x_g[0]), np.abs(1 - x_g[1])
+    )
 
     print("\n\nBad Broyden")
-    print("x and y:", x_b[0], x_b[1], "\ndiff: ", np.abs(0-x_b[0]), np.abs(1-x_b[1]))
+    print(
+        "x and y:", x_b[0], x_b[1], "\ndiff: ", np.abs(0 - x_b[0]), np.abs(1 - x_b[1])
+    )
 
     ## test example
-    sol = optimize.broyden1(fs, x)
+    sol = optimize.broyden1(objective_function, x)
     print("\n\nGood Broyden Scipy solution", sol)
+
 
 if __name__ == "__main__":
     main()
