@@ -1,7 +1,6 @@
 import numpy as np
 import scipy.linalg as sla
 from scipy import optimize
-from numpy.linalg import inv
 #from methods import OptimizationMethod
 #from optimization_problem import OptimizationProblem
 from autograd import hessian
@@ -52,7 +51,7 @@ class BadBroyden:
     def bad_broyden_minimize(self, x):
         iterations = 0
         #  The Jacobian of the gradient is called Hessian and is symmetric.
-        H = inv(self.G)
+        H = np.linalg.inv(self.G)
         gradient = self.gradient_func(x)
 
         # Check the frobenius norm and max iterations
