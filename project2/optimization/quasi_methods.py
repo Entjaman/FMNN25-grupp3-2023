@@ -7,7 +7,7 @@ from autograd import hessian
 
 
 class QuasiNewton:
-    def __init__(self, f_eq, G=np.identity(2), tol=1e-10, maxIters=50):
+    def __init__(self, f_eq, G=np.identity(2), tol=1e-20, maxIters=50):
         self.f_eq = f_eq
         self.G = G
         self.tol = tol
@@ -35,6 +35,7 @@ class QuasiNewton:
             fx = fx_new
             iterations += 1
 
+        print('Good broyden nbr iter: ', iterations)
         return x
 
     def bad_broyden_minimize(self, x):
@@ -58,13 +59,38 @@ class QuasiNewton:
             z = new_gradient - gradient
 
             # Update the inverse Hessian approximation using Broyden rank-1 update
-            H = H + np.outer(s - np.dot(H, z), np.dot(H, z)) / np.dot(
+            H += np.outer(s - np.dot(H, z), np.dot(H, z)) / np.dot(
                 np.dot(H, z), np.dot(H, z)
             )
             gradient = new_gradient
             iterations += 1
             x = x_new
 
+        print('Bad broyden nbr iter: ', iterations)
+        return x
+    
+    def symmetric_broyden_minimize(self, x):
+        """Symmetric Broyden update for Jacobian approximation."""
+        iterations = 0
+        H = np.linalg.inv(self.G)
+        gradient = self.f_eq(x)
+
+        while np.linalg.norm(gradient) > self.tol and iterations < self.maxIters:
+            # Calculate the direction vector
+            s = -np.dot(H, gradient)
+            x_new = x + s
+            new_gradient = self.f_eq(x_new)
+            dr = new_gradient - gradient
+            dx = x_new -x
+
+            # Symmetric Broyden update - ensures that H remains symmetric during the iterations 
+            H += np.outer(dx - np.dot(H, dr), dx) / np.dot(dr, dx)
+
+            gradient = new_gradient
+            iterations += 1
+            x = x_new
+
+        print('Symmetric broyden nbr iter: ', iterations)
         return x
 
 
@@ -92,6 +118,7 @@ def main():
 
     x_g = QN.good_broyden_minimize(x)
     x_b = QN.bad_broyden_minimize(x)
+    x_s = QN.symmetric_broyden_minimize(x) 
 
     print("Good Broyden")
     print(
@@ -101,6 +128,11 @@ def main():
     print("\n\nBad Broyden")
     print(
         "x and y:", x_b[0], x_b[1], "\ndiff: ", np.abs(0 - x_b[0]), np.abs(1 - x_b[1])
+    )
+
+    print("\n\nSymmetric Broyden")
+    print(
+        "x and y:", x_s[0], x_s[1], "\ndiff: ", np.abs(0 - x_s[0]), np.abs(1 - x_s[1])
     )
 
     ## test example
