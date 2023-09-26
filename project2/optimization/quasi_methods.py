@@ -9,8 +9,8 @@ from  scipy import dot,linspace
 
 
 class QuasiNewton:
-    def __init__(self, f_eq, gradient_function, G=np.identity(2), tol=1e-20, maxIters=50):
-        self.f_eq = f_eq
+    def __init__(self, gradient_function, G=np.identity(2), tol=1e-20, maxIters=50):
+        self.gradient_function = gradient_function
         self.G = G
         self.tol = tol
         self.maxIters = maxIters
@@ -21,7 +21,7 @@ class QuasiNewton:
         Sherman-Morrison's formula for numerical stability and faster
         convergence."""
         iterations = 0
-        fx = self.f_eq(x)
+        fx = self.gradient_function(x)
         G = self.G
 
         # Check the frobenius norm and max iterations
@@ -29,7 +29,7 @@ class QuasiNewton:
             # Solve for dx using the current Jacobian G
             dx = np.linalg.solve(G, -fx)
             x = x + dx
-            fx_new = self.f_eq(x)
+            fx_new = self.gradient_function(x)
             dk = fx_new - fx
 
             # Update the approximation of Jacobian matrix using Sherman-Morrison's formula
@@ -58,7 +58,7 @@ class QuasiNewton:
             x_new = x + s
 
             #  Compute the change in gradient
-            new_gradient = self.f_eq(x_new)
+            new_gradient = self.gradient_function(x_new)
             dr = new_gradient - gradient
 
             # Update the inverse Hessian approximation using Broyden rank-1 update
@@ -82,7 +82,7 @@ class QuasiNewton:
             # Calculate the direction vector
             s = -np.dot(H, gradient)
             x_new = x + s
-            new_gradient = self.f_eq(x_new)
+            new_gradient = self.gradient_function(x_new)
             dr = new_gradient - gradient
             dx = x_new -x
 
@@ -103,7 +103,8 @@ def objective_function(x): # corr 2, 0, 0
 
 def main():
    
-    # op = OptimizationProblem(fs)
+    x = np.array([0.0, 0.0])
+    # op = OptimizationProblem(fs, chebygrad)
     # om = OptimizationMethod(op)
     # G = om.hessian_aprox(x, 1) # - cannot reshape x of len 2....
     # print(G)
@@ -113,7 +114,7 @@ def main():
     # of the Hessian gives an ok approximation.
     gradient_function = objective_function
 
-    x = np.array([0.0, 0.0])
+   
     G = np.array([[1, 2], [2, 16]])
 
     # QN = QuasiNewton(cp.chebyquad_fcn,  maxIters=50)
