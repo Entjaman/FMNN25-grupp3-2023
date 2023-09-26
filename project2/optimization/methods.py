@@ -18,6 +18,7 @@ class OptimizationMethod():
         a = self.opt_problem.gradient_value(x)
         b = np.array([])
         h_aprox = np.array([])
+        x_temp = x
         for i in range(len(x)):
             x_temp = x
             x_temp[i]= x_temp[i] - step_size
