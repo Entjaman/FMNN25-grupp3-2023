@@ -100,27 +100,17 @@ class QuasiNewton:
         return x
 
 
-def objective_function(x): # corr 2, 0, 0
-    return np.array([x[0] + 2 * x[1] - 2 , x[0] ** 2 + 4 * x[1] ** 2 - 4  ])
-
-
 def main():
    
     x = np.array([0.0, 0.0])
     op = OptimizationProblem(cp.chebyquad, cp.gradchebyquad)
     om = OptimizationMethod(op, 0.01, 10)
-    G = om.hessian_aprox(x, 1) # - cannot reshape x of len 2....
-    # print(G)
+    G = om.hessian_aprox(x, 1)
 
     # G needs to be initialized as a good approximation for the methods to work
     # therefore we need to use the hessian_aprox function here, until then this aprox
     # of the Hessian gives an ok approximation.
     #gradient_function = objective_function
-
-   
-    #G = np.array([[1, 2], [2, 16]])
-
-    # QN = QuasiNewton(cp.chebyquad_fcn,  maxIters=50)
     QN = QuasiNewton(cp.gradchebyquad, G,  maxIters=100)
 
     x_g = QN.good_broyden_minimize(x)
@@ -135,16 +125,10 @@ def main():
 
     print("\n\nSymmetric Broyden")
     print("x:", [i for i in x_s],  "\n")
-    ## test example
-    # sol = optimize.broyden1(objective_function, x)
-    #print("\n\nGood Broyden Scipy solution", sol, "\n")
 
     x_so = so.fmin_bfgs(cp.chebyquad, x)
 
-    print('sicpy opt ', x_so) # [-5.53432000e-09  9.99999994e-01]
-
-   
-
+    print('sicpy opt ', x_so) 
 
 if __name__ == "__main__":
     main()
