@@ -9,7 +9,7 @@ from  scipy import dot,linspace
 
 
 class QuasiNewton:
-    def __init__(self, f_eq, G=np.identity(3), tol=1e-20, maxIters=50):
+    def __init__(self, f_eq, G=np.identity(2), tol=1e-20, maxIters=50):
         self.f_eq = f_eq
         self.G = G
         self.tol = tol
@@ -97,7 +97,7 @@ class QuasiNewton:
 
 
 def objective_function(x): # corr 2, 0, 0
-    return np.array([x[0] + 2 * x[1] - 2 + x[2], x[0] ** 2 + 4 * x[1] ** 2 - 4 + x[2],x[0] ** 2 + 4 * x[1] ** 2 - 4 + x[2] ])
+    return np.array([x[0] + 2 * x[1] - 2 , x[0] ** 2 + 4 * x[1] ** 2 - 4  ])
 
 
 def main():
@@ -112,11 +112,11 @@ def main():
     # of the Hessian gives an ok approximation.
 
 
-    x = np.array([0.0, 0.0, 0.0])
-   # G = np.array([[1, 2], [2, 16]])
+    x = np.array([0.0, 0.0])
+    G = np.array([[1, 2], [2, 16]])
 
-    QN = QuasiNewton(cp.chebyquad_fcn,  maxIters=50)
-    #QN = QuasiNewton(objective_function,  maxIters=100)
+    # QN = QuasiNewton(cp.chebyquad_fcn,  maxIters=50)
+    QN = QuasiNewton(objective_function, G,  maxIters=100)
 
     x_g = QN.good_broyden_minimize(x)
     x_b = QN.bad_broyden_minimize(x)
