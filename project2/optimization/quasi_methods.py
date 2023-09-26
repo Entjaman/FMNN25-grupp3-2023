@@ -9,11 +9,12 @@ from  scipy import dot,linspace
 
 
 class QuasiNewton:
-    def __init__(self, f_eq, G=np.identity(2), tol=1e-20, maxIters=50):
+    def __init__(self, f_eq, gradient_function, G=np.identity(2), tol=1e-20, maxIters=50):
         self.f_eq = f_eq
         self.G = G
         self.tol = tol
         self.maxIters = maxIters
+        self.gradient_function = gradient_function
 
     def good_broyden_minimize(self, x):
         """Combines the benefits of Broyden's Rank-1 update with
@@ -46,7 +47,7 @@ class QuasiNewton:
         iterations = 0
         #  The Jacobian of the gradient is called Hessian and is symmetric.
         H = np.linalg.inv(self.G)
-        gradient = self.f_eq(x)
+        gradient = self.gradient_function(x)
 
         # Check the frobenius norm and max iterations
         while np.linalg.norm(gradient) > self.tol and iterations < self.maxIters:
@@ -75,7 +76,7 @@ class QuasiNewton:
         """Symmetric Broyden update for Jacobian approximation."""
         iterations = 0
         H = np.linalg.inv(self.G)
-        gradient = self.f_eq(x)
+        gradient = self.gradient_function(x)
 
         while np.linalg.norm(gradient) > self.tol and iterations < self.maxIters:
             # Calculate the direction vector
@@ -110,13 +111,13 @@ def main():
     # G needs to be initialized as a good approximation for the methods to work
     # therefore we need to use the hessian_aprox function here, until then this aprox
     # of the Hessian gives an ok approximation.
-
+    gradient_function = objective_function
 
     x = np.array([0.0, 0.0])
     G = np.array([[1, 2], [2, 16]])
 
     # QN = QuasiNewton(cp.chebyquad_fcn,  maxIters=50)
-    QN = QuasiNewton(objective_function, G,  maxIters=100)
+    QN = QuasiNewton(objective_function, gradient_function, G,  maxIters=100)
 
     x_g = QN.good_broyden_minimize(x)
     x_b = QN.bad_broyden_minimize(x)
