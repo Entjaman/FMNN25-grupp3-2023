@@ -75,7 +75,11 @@ class QuasiNewton:
         return x
     
     def symmetric_broyden_minimize(self, x):
-        """Symmetric Broyden update for Jacobian approximation."""
+        """Symmetric Broyden update for Jacobian approximation.
+         the symmetric Broyden method may have some stability issues, 
+         especially when dealing with ill-conditioned or highly nonlinear 
+         problems. It might converge slowly or fail to converge in some cases.
+         """
         iterations = 0
         G_reg = self.G + 1e-6 * np.eye(self.G.shape[0])
         H = np.linalg.inv(G_reg)
@@ -102,7 +106,7 @@ class QuasiNewton:
 
 def main():
    
-    x = np.array([0.0, 0.0])
+    x = np.array([0.0, 0.0, 0.0])
     op = OptimizationProblem(cp.chebyquad, cp.gradchebyquad)
     om = OptimizationMethod(op, 0.01, 10)
     G = om.hessian_aprox(x, 1)
@@ -129,6 +133,13 @@ def main():
     x_so = so.fmin_bfgs(cp.chebyquad, x)
 
     print('sicpy opt ', x_so) 
+
+
+    print('cheby fcn: ', cp.chebyquad_fcn(x_g), 'dot product: ', cp.chebyquad(x_g))
+    print('cheby fcn: ', cp.chebyquad_fcn(x_b), 'dot product: ', cp.chebyquad(x_g))
+    print('cheby fcn: ', cp.chebyquad_fcn(x_s), 'dot product: ', cp.chebyquad(x_s))
+    print('cheby fcn: ', cp.chebyquad_fcn(x_so), 'dot product: ', cp.chebyquad(x_so))
+
 
 if __name__ == "__main__":
     main()
