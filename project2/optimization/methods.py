@@ -1,11 +1,11 @@
 import numpy as np
+import scipy.optimize as so
 
 
 class OptimizationMethod():
-    def __init__(self, opt_problem,stopping_criteria, maxIters):
+    def __init__(self, opt_problem):
         self.opt_problem = opt_problem
-        self.stopping_criteria = stopping_criteria
-        self.maxIters = maxIters
+
     
     
     #This is the hessian_aprox for the classical newton method
@@ -33,18 +33,36 @@ class OptimizationMethod():
         
         return h_aprox
     
-    def classical_Newton(self,x_init,step_size):
+    #Don't know why I pick this step_size should maybe find a reason?
+    def classical_Newton(self,x_init,step_size=0.00001,stopping_criteria=1e-20, maxIters=50):
+        
+        return self.Newton_help_method(x_init, 'classic',step_size,stopping_criteria,maxIters)
+    
+    
+    def Newton_with_exact_line_search(self,x_init,step_size=0.00001,stopping_criteria=1e-20, maxIters=50):
+        return self.Newton_help_method(x_init, 'exact_line_search',step_size,stopping_criteria,maxIters)
+        
+        
+        return None
+    
+    
+    def Newton_help_method(self,x_init,line_search,step_size=0.00001,stopping_criteria=1e-20, maxIters=50):
         
         iteration = 0 
         x= x_init
+        g = self.opt_problem.gradient_value(x)
 
-
-        while (np.all(self.opt_problem.gradient_value(x)>self.stopping_criteria) or iteration<self.maxIters):
+        while (np.all(g>stopping_criteria) or iteration<maxIters):
             G = self.hessian_aprox(x, step_size)
-            s = - np.dot(np.linalg.inv(G),self.opt_problem.gradient_value(x))
+            H = np.linalg.inv(G)
+            a = so.minimize_scalar(lambda a : self.opt_problem.function_value(x-a*np.dot(H,g))[0]).x if line_search == 'exact_line_search' else 1
+            s = - a*np.dot(H,self.opt_problem.gradient_value(x))
             x = np.reshape(np.add(x,s),(len(x)))
+            g = self.opt_problem.gradient_value(x)
             #x = 1
             iteration = iteration + 1
             
         return x
-   
+    
+    
+    
