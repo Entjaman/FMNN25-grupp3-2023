@@ -188,7 +188,9 @@ def main():
     optimization_path = [x.copy()]
 
     while True:
-        x_new = om.Newton_with_exact_line_search(x)
+        x_new = om.Newton_with_exact_line_search(
+            x
+        )  # change this to the method that should run
         optimization_path.append(x_new)
         if np.linalg.norm(x_new - x) < 1e-6:
             break
