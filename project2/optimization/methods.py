@@ -34,24 +34,24 @@ class OptimizationMethod:
         return h_aprox
 
     # Don't know why I pick this step_size should maybe find a reason?
-    def classical_Newton(
+    def classical_newton(
         self, x_init, step_size=0.00001, stopping_criteria=1e-20, maxIters=50
     ):
-        return self.Newton_help_method(
+        return self.newton_help_method(
             x_init, "classic", step_size, stopping_criteria, maxIters
         )
 
     def newton_with_exact_line_search(
         self, x_init, step_size=0.00001, stopping_criteria=1e-20, maxIters=50
     ):
-        return self.Newton_help_method(
+        return self.newton_help_method(
             x_init, "exact_line_search", step_size, stopping_criteria, maxIters
         )
 
-    def newton_with_inexact_line_serach(
+    def newton_with_inexact_line_search(
         self, x_init, step_size=0.00001, stopping_criteria=1e-20, maxIters=50
     ):
-        return self.Newton_help_method(
+        return self.newton_help_method(
             x_init, "inexact_line_search", step_size, stopping_criteria, maxIters
         )
 
@@ -188,7 +188,7 @@ def main():
     optimization_path = [x.copy()]
 
     while True:
-        x_new = om.Newton_with_exact_line_search(
+        x_new = om.newton_with_exact_line_search(
             x
         )  # change this to the method that should run
         optimization_path.append(x_new)
