@@ -10,12 +10,12 @@ This project uses [Poetry](https://python-poetry.org/) to handle python packagin
 
 To run:
 
-`poetry run app.py`
+`poetry run python app.py`
 
 To test:
 
-`poetry run pytest`
+`poetry run python pytest`
 
 ### Documentation
 
-This project uses `mkdocs` to generate documentation, more on this later.
+This project was supposed to use `mkdocs` to generate documentation, but because of lack of time did not manage in time..
