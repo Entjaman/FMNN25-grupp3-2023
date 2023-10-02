@@ -8,7 +8,7 @@ import scipy.optimize as so
 from  scipy import dot,linspace
 
 
-class QuasiNewton:
+class QuasiNewton(OptimizationMethod):
     def __init__(self, gradient_function, G=np.identity(2), tol=1e-20, maxIters=50):
         self.gradient_function = gradient_function
         self.G = G
@@ -108,7 +108,7 @@ def main():
    
     x = np.array([0.0, 0.0, 0.0])
     op = OptimizationProblem(cp.chebyquad, cp.gradchebyquad)
-    om = OptimizationMethod(op, 0.01, 10)
+    om = OptimizationMethod(op)
     G = om.hessian_aprox(x, 1)
 
     # G needs to be initialized as a good approximation for the methods to work
