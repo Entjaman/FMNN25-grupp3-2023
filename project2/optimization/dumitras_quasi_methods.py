@@ -39,7 +39,6 @@ class QuasiNewtonMethod(OptimizationMethod):
         s_k = np.dot(-H_k,g_k)
         hessians = []
 
-      #  print("s_k", s_k)
         i = 0
         # check the value of the gradient
         while i < maxIters and  np.linalg.norm(self.opt_problem.gradient_value(x_k)) > tol  :
@@ -48,12 +47,8 @@ class QuasiNewtonMethod(OptimizationMethod):
                np.linalg.cholesky(H_k)
             except:
                return False
-
-        
-          
-          # print("g_k", g_k)
+            
            #### line search method ########
-         #  alfa_k = line_search(self.opt_problem.function_value, self.opt_problem.gradient_value, x_k, s_k)[0]
             alfa_k = self.line_search_wolfe(x_k, s_k)
 
             delta_k =alfa_k * s_k
@@ -100,10 +95,7 @@ class QuasiNewtonMethod(OptimizationMethod):
             #  print("Number of iterations DFP:", i-1)
               return False
            
-           
-          # print("g_k", g_k)
            #### line search method ########
-           #alfa_k = line_search(self.opt_problem.function_value, self.opt_problem.gradient_value, x_k, s_k)[0]
             alfa_k = self.line_search_wolfe(x_k, s_k)
 
           # alfa_k=0.5
@@ -127,9 +119,7 @@ class QuasiNewtonMethod(OptimizationMethod):
             gTHg = np.transpose(gamma_k) @ H_k @ gamma_k  
             H_k = H_k  + 0.0001 * np.eye(len(x_k), dtype= float) + ddT/ dTg  - HggTH / gTHg
             i= i+1
-          # print("H_k", H_k)
             s_k = np.dot(-H_k,np.array(self.opt_problem.gradient_value(x_k)))
         print("Number of iterations DFP:", i-1)
-       # print("x_k", x_k)
         return x_k
         
