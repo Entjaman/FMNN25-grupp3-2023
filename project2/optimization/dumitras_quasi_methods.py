@@ -93,49 +93,42 @@ class QuasiNewtonMethod(OptimizationMethod):
         i = 0
         # check the value of the gradient
         while i < maxIters and  np.linalg.norm(self.opt_problem.gradient_value(x_k)) > tol  :
-        #     # line search to find alfa_k
-        #     try:
-        #       np.linalg.cholesky(H_k)
-        #     except:
-        #     #  print("Number of iterations DFP:", i-1)
-        #       return False
+            # line search to find alfa_k
+            try:
+              np.linalg.cholesky(H_k)
+            except:
+            #  print("Number of iterations DFP:", i-1)
+              return False
            
            
           # print("g_k", g_k)
            #### line search method ########
            #alfa_k = line_search(self.opt_problem.function_value, self.opt_problem.gradient_value, x_k, s_k)[0]
-           alfa_k = self.line_search_wolfe(x_k, s_k)
+            alfa_k = self.line_search_wolfe(x_k, s_k)
 
           # alfa_k=0.5
            # calculating delta should be a nx1 vector
-           delta_k =alfa_k * s_k
+            delta_k =alfa_k * s_k
            # saving the gradient of the current x_k
-           g_k = np.array(self.opt_problem.gradient_value(x_k))
+            g_k = np.array(self.opt_problem.gradient_value(x_k))
            # updating the x_(k+1)
-           x_k = x_k + delta_k
+            x_k = x_k + delta_k
            # saving the gradient of the updated x_k
-           g_updated = np.array(self.opt_problem.gradient_value(x_k))
+            g_updated = np.array(self.opt_problem.gradient_value(x_k))
            # calculating gamma
-           gamma_k =  g_updated - g_k;
-          # print("gamma_k", gamma_k)
+            gamma_k =  g_updated - g_k;
            # temporary variables for better reading of the code i guess?
            # NxN matrix/scalar
-           dTg =  np.dot(np.transpose(delta_k), gamma_k)
+            dTg =  np.dot(np.transpose(delta_k), gamma_k)
            
            #  /NxN matrix
-           ddT = np.dot(delta_k, np.transpose(delta_k))
-         
-           HggTH = H_k @ gamma_k  @ np.transpose(gamma_k) * H_k
-           gTHg = np.transpose(gamma_k) @ H_k @ gamma_k  
-           # print("H_k", H_k, H_k.shape)
-           # print("gamma_k", gamma_k, gamma_k.shape)
-           # print("gamma_k_transpose", np.transpose(gamma_k), np.transpose(gamma_k).shape)
-           # print("Hg", HggTH,HggTH.shape)
-           # print("H_k", H_k)
-           H_k = H_k  + 0.0001 * np.eye(len(x_k), dtype= float) + ddT/ dTg  - HggTH / gTHg
-           i= i+1
+            ddT = np.dot(delta_k, np.transpose(delta_k))     
+            HggTH = H_k @ gamma_k  @ np.transpose(gamma_k) * H_k
+            gTHg = np.transpose(gamma_k) @ H_k @ gamma_k  
+            H_k = H_k  + 0.0001 * np.eye(len(x_k), dtype= float) + ddT/ dTg  - HggTH / gTHg
+            i= i+1
           # print("H_k", H_k)
-           s_k = np.dot(-H_k,np.array(self.opt_problem.gradient_value(x_k)))
+            s_k = np.dot(-H_k,np.array(self.opt_problem.gradient_value(x_k)))
         print("Number of iterations DFP:", i-1)
        # print("x_k", x_k)
         return x_k
