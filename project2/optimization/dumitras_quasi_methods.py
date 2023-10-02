@@ -55,7 +55,7 @@ class QuasiNewtonMethod(OptimizationMethod):
             g_k = np.array(self.opt_problem.gradient_value(x_k))
             x_k = x_k + delta_k
             g_updated = np.array(self.opt_problem.gradient_value(x_k))
-            gamma_k =  g_updated - g_k;
+            gamma_k =  g_updated - g_k
 
            # bfgs update
             # scalar
