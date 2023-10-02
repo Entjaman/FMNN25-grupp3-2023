@@ -78,9 +78,3 @@ def gradchebyquad(x):
     UM = 4. / len(x) * array([[(i+1) * U(2. * xj - 1., i) 
                              for xj in x] for i in range(len(x) - 1)])
     return dot(chq[1:].reshape((1, -1)), UM).reshape((-1, ))
-    
-if __name__ == '__main__':
-    x=linspace(0,1,11) #This is our initial guess. Should we add that as an input to our methods as well?
-    a = chebyquad(x)
-    b = gradchebyquad(x)
-    xmin= so.fmin_bfgs(chebyquad,x,gradchebyquad)  # should converge after 18 iterations  

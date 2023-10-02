@@ -9,11 +9,6 @@ class OptimizationMethod:
     def __init__(self, opt_problem):
         self.opt_problem = opt_problem
 
-    # This is the hessian_aprox for the classical newton method
-    # Should maybe reside in that class, but am unsure if any
-    # Of the Quasi methods use the same aproximation.
-    # Now it's a simple derivate aproximation, might want to be
-    # be changed to a Taylor expansion.
     def hessian_aprox(self, x, step_size):
         a = self.opt_problem.gradient_value(x)
         b = np.array([])
@@ -33,7 +28,6 @@ class OptimizationMethod:
 
         return h_aprox
 
-    # Don't know why I pick this step_size should maybe find a reason?
     def classical_newton(
         self, x_init, step_size=0.00001, stopping_criteria=1e-20, maxIters=50
     ):
@@ -115,7 +109,6 @@ class OptimizationMethod:
             alfa_k_minus = alfa_k_minus / 2
             iteration = iteration + 1
         alfa_k_plus = alfa_k_minus
-        # print(iteration)
         iteration = 0
         while (
             phi(alfa_k_plus) <= fx + c1 * alfa_k_plus * np.dot(dfx.T, sk)
@@ -123,8 +116,6 @@ class OptimizationMethod:
         ):
             alfa_k_plus = 2 * alfa_k_plus
             iteration = iteration + 1
-        # print(iteration)
-        # Curvature rule not fullfiled
         iteration = 0
         while (
             np.dot(dphi(alfa_k_minus).T, sk) < c2 * np.dot(dfx.T, sk)
@@ -136,80 +127,9 @@ class OptimizationMethod:
             else:
                 alfa_k_plus = alfa_zero
             iteration = iteration + 1
-        # print(iteration)
+
         return alfa_k_minus
 
 
 def rosenbrock_function(x):
     return 100 * (x[1] - (x[0]) ** 2) ** 2 + (1 - x[0]) ** 2
-
-
-def plot(optimization_path):
-    x = np.linspace(-0.5, 2, 500)
-    y = np.linspace(-1.5, 4, 500)
-    X, Y = np.meshgrid(x, y)
-    Z = rosenbrock_function([X, Y])
-
-    # Create the contour plot
-    contour_levels = 30
-    plt.figure(figsize=(8, 6))
-    contour = plt.contour(X, Y, Z**0.33, contour_levels, colors="black")
-
-    # Add labels and title
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.title("Rosenbrock function")
-
-    # Plot the contour plot in black and white
-    plt.figure(figsize=(8, 6))
-    contour = plt.contour(X, Y, Z, colors="black", levels=np.logspace(0, 5, 35))
-    plt.clabel(contour, inline=1, fontsize=10)
-
-    # Plot the optimization path as a black line
-    plt.plot(
-        optimization_path[:, 0],
-        optimization_path[:, 1],
-        color="black",
-        marker="o",
-        markersize=5,
-        linewidth=0.5,
-    )
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.title("Steps of Newton's method to compute a minimum")
-    plt.show()
-
-
-def main():
-    x = np.array([0.0, 1.0])
-    op = OptimizationProblem(rosenbrock_function)
-    om = OptimizationMethod(op)
-    # Store optimization path for plotting
-    optimization_path = [x.copy()]
-
-    while True:
-        x_new = om.newton_with_exact_line_search(
-            x
-        )  # change this to the method that should run
-        optimization_path.append(x_new)
-        if np.linalg.norm(x_new - x) < 1e-6:
-            break
-        x = x_new
-
-    optimization_path = np.array(optimization_path)
-
-    print("Our Solution:", x)
-    print("Our Minimum Value:", rosenbrock_function(x))
-
-    result = opt.minimize(rosenbrock_function, x, method="BFGS")
-    solution = result.x
-    minimum_value = result.fun
-
-    print("Scipy Solution: (BFGS)", solution)
-    print("Scipy Minimum Value: (BFGS)", minimum_value)
-
-    plot(optimization_path)
-
-
-if __name__ == "__main__":
-    main()

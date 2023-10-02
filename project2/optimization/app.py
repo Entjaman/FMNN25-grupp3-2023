@@ -7,11 +7,19 @@ import scipy.optimize as opt
 from methods import OptimizationMethod
 import methods
 import quasi_methods as quasi
+import sys
 
 from PyInquirer import style_from_dict, Token, prompt
 from pprint import pprint
 
 ##### PROMPT SETTINGS #####
+
+def handle_prompts(answers):
+    for answer in answers:
+        if answer == 'classical newton method':
+            return True
+    return False
+    
 
 style = style_from_dict({
     Token.QuestionMark: '#673ab7 bold',
@@ -35,6 +43,7 @@ questions = [
         'name': 'optimizeMethod',
         'message': 'What Newton method would you like to use?',
         'choices': ['Classical Newton Method', 'Good Broyden', 'Bad Broyden', 'Symmetric Broyden', 'DFP', 'BFGS'],
+        'when': lambda answers: answers['problem'] == 'chebyquad',
         'filter': lambda val: val.lower()
     },
     {
@@ -42,7 +51,7 @@ questions = [
         'name': 'lineSearchMethod',
         'message': 'What line search method do you want to use for Classical Newton Method?',
         'choices': ['None (alpha equals one)', 'Exact line search', 'Inexact line search'],
-        'when': lambda answers: answers['optimizeMethod'] == 'classical newton method',
+        'when': lambda answers: handle_prompts(answers),
         'filter': lambda val: val.lower()
     },
 ]
@@ -58,7 +67,10 @@ def main():
     print("• All Quasi-Newton methods use inexact line search.\n")
     answers = prompt(questions, style=style)
     problem = answers['problem']
-    optimize_method = answers['optimizeMethod']
+    try:
+        optimize_method = answers['optimizeMethod']
+    except:
+        pass
     print("\n\nCalculating...\n\n")
     # end of prompts
 
@@ -68,8 +80,7 @@ def main():
         xk=np.linspace(0,1,11) # Hardcoded entries
     else: # rosenbrock
         plot()
-        op = OptimizationProblem(methods.rosenbrock_function)
-        xk = np.array([0.0, 1.0]) # Hardcoded entries
+        sys.exit(0)
 
 
     print("=====================")
@@ -125,13 +136,14 @@ def plot():
     rosenbrock_function = methods.rosenbrock_function
     op = OptimizationProblem(rosenbrock_function)
     om = OptimizationMethod(op)
+
     # Store optimization path for plotting
     optimization_path = [x.copy()]
 
-    while True:
+    while True: # exact line search
         x_new = om.newton_with_exact_line_search(
             x
-        )  # change this to the method that should run
+        )        
         optimization_path.append(x_new)
         if np.linalg.norm(x_new - x) < 1e-6:
             break
@@ -140,8 +152,8 @@ def plot():
     optimization_path = np.array(optimization_path)
 
     print("====== TASK 5 ======\n")
-    print("Our Solution:", x)
-    print("Our Minimum Value:", rosenbrock_function(x))
+    print("Our Solution, exact line search:", x)
+    print("Our Minimum Value, exact line search:", rosenbrock_function(x))
 
     result = opt.minimize(rosenbrock_function, x, method="BFGS")
     solution = result.x
@@ -149,7 +161,6 @@ def plot():
 
     print("Scipy Solution: (BFGS)", solution)
     print("Scipy Minimum Value: (BFGS)", minimum_value)
-    print("\nClose plots to continue...")
     print("\n====================\n")
 
     x = np.linspace(-0.5, 2, 500)
