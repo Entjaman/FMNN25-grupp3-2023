@@ -16,6 +16,8 @@ To test:
 
 `poetry run python pytest`
 
+However, unfortunately we didn't manage to implement any good tests either (because lack of time)...
+
 ### Documentation
 
 This project was supposed to use `mkdocs` to generate documentation, but because of lack of time did not manage in time..
