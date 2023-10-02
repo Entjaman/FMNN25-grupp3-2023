@@ -21,7 +21,7 @@ def obj_grad(x):
 def main():
 
     xk = np.array([1.34, 1.45,1,1.5,1,1,1,1.5])
-    xk = np.array([1,1,1,1])
+    xk=np.linspace(0,1,11) #This is our initial guess. Should we add that as an input to our methods as well?
     sk = np.array([-1.00, -1.00])
    # alfa = line_search(cp.chebyquad, cp.gradchebyquad, xk, sk)[0]
    # print("scipy search",alfa)
@@ -33,8 +33,9 @@ def main():
     #alfa = line_search_test.line_search_wolfe(xk, sk)
     
     test_bfgs = quasi.QuasiNewtonMethod(problem)
-   # x_k = test_bfgs.minimize_bfgs(xk)
-    #print("BFGS", x_k)
+   
+    x_k = test_bfgs.minimize_bfgs(xk, 1e-2,100)
+    print("BFGS", x_k)
    
     x_dfp = test_bfgs.minimize_DFP(xk)
     print("DFP", x_dfp)
@@ -42,5 +43,7 @@ def main():
     print("BFGS scipy", x_so)
     print("cheby value for xk",cp.chebyquad(x_dfp))
 if __name__ == "__main__":
+
+
     main()
         
