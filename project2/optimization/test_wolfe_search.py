@@ -44,12 +44,21 @@ def task12(inverse_hessians, true_inv_hessian):
 def main():
 
     # i think this should not be user defined, it should be a paramter that cannot be chnaged easily
-    xk=np.linspace(0,1,11)    
+    xk=np.linspace(0,1,11) 
     problem = OptimizationProblem(cp.chebyquad,cp.gradchebyquad)
 
     test_bfgs = quasi.QuasiNewtonMethod(problem)  
     x_k, hessians = test_bfgs.minimize_bfgs(xk, 1e-2,100, save_H= True)
     print("BFGS", x_k)
+    
+    x_good_broyden = test_bfgs.minimize_good_broyden(xk)
+    print("Good broyden: ", x_good_broyden)
+
+    x_bad_broyden = test_bfgs.minimize_bad_broyden(xk)
+    print("Bad broyden: ", x_bad_broyden)
+
+    x_symmetric_broyden = test_bfgs.minimize_symmetric_broyden(xk)
+    print("Symmetric broyden: ", x_symmetric_broyden)
    # print(hessians)
     task12(hessians, np.linalg.inv(test_bfgs.hessian_aprox(xk, 1e-6)))
     # true_hessian = test_bfgs.hessian_aprox(xk, 1e-6)

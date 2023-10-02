@@ -22,6 +22,95 @@ class QuasiNewtonMethod(OptimizationMethod):
     
         self.opt_problem = opt_problem 
 
+    def minimize_good_broyden(self, x_k, tol= 1e-10, maxIters = 50):
+        n = len(x_k)
+        H_k = np.eye(n, dtype= float)
+        reg = 0.0001 * np.eye(n, dtype= float)
+        g_k = self.opt_problem.gradient_value(x_k)
+        s_k = np.dot(-H_k,g_k)
+
+        i = 0
+        # check the value of the gradient
+        while i < maxIters and  np.linalg.norm(self.opt_problem.gradient_value(x_k)) > tol:
+            alfa_k = self.line_search_wolfe(x_k, s_k)
+            delta_k =alfa_k * s_k
+            g_k = np.array(self.opt_problem.gradient_value(x_k))
+            x_k = x_k + delta_k
+            g_updated = np.array(self.opt_problem.gradient_value(x_k))
+            gamma_k =  g_updated - g_k
+            Hg = np.dot(H_k + reg, gamma_k)
+            dTHg = np.dot(np.dot(delta_k.T, H_k+reg), gamma_k)
+            dTH = np.dot(delta_k.T,H_k+reg)
+            H_k = H_k + ((delta_k - Hg)/(dTHg))*dTH
+
+            # H_k = H_k + (((delta_k - np.dot(H_k + reg, gamma_k))/np.dot(np.dot(delta_k.T, H_k+reg), gamma_k))*np.dot(delta_k.T,H_k+reg))
+            s_k = np.dot(-H_k,np.array(self.opt_problem.gradient_value(x_k)))
+
+            i= i+1
+
+        print("Number of iterations Good Broyden:", i-1)
+        return x_k
+    
+
+    def minimize_bad_broyden(self, x_k, tol= 1e-10, maxIters = 50):
+        n = len(x_k)
+        H_k = np.eye(n, dtype= float)
+        reg = 0.0001 * np.eye(n, dtype= float)
+        g_k = self.opt_problem.gradient_value(x_k)
+        s_k = np.dot(-H_k,g_k)
+
+        i = 0
+        # check the value of the gradient
+        while i < maxIters and  np.linalg.norm(self.opt_problem.gradient_value(x_k)) > tol:
+            alfa_k = self.line_search_wolfe(x_k, s_k)
+            delta_k =alfa_k * s_k
+            g_k = np.array(self.opt_problem.gradient_value(x_k))
+            x_k = x_k + delta_k
+            g_updated = np.array(self.opt_problem.gradient_value(x_k))
+            gamma_k =  g_updated - g_k
+            Hg = np.dot(H_k + reg, gamma_k)
+            gTg = np.dot(gamma_k.T, gamma_k)
+            
+            H_k = H_k + ((delta_k - Hg)/(gTg))*gamma_k.T
+
+            s_k = np.dot(-H_k,np.array(self.opt_problem.gradient_value(x_k)))
+
+            i= i+1
+
+        print("Number of iterations Bad Broyden:", i-1)
+        return x_k
+
+
+    def minimize_symmetric_broyden(self, x_k, tol= 1e-10, maxIters = 50):
+        n = len(x_k)
+        H_k = np.eye(n, dtype= float)
+        reg = 0.0001 * np.eye(n, dtype= float)
+        g_k = self.opt_problem.gradient_value(x_k)
+        s_k = np.dot(-H_k,g_k)
+
+        i = 0
+        # check the value of the gradient
+        while i < maxIters and  np.linalg.norm(self.opt_problem.gradient_value(x_k)) > tol:
+            alfa_k = self.line_search_wolfe(x_k, s_k)
+            delta_k =alfa_k * s_k
+            g_k = np.array(self.opt_problem.gradient_value(x_k))
+            x_k = x_k + delta_k
+            g_updated = np.array(self.opt_problem.gradient_value(x_k))
+            gamma_k =  g_updated - g_k
+            
+            u = delta_k - np.dot(H_k, gamma_k)
+            a = 1/np.dot(u.T, gamma_k)
+            uu = np.dot(u, u.T)
+
+            H_k = H_k + reg+ np.dot(np.dot(a, u), u.T)
+
+            s_k = np.dot(-H_k,np.array(self.opt_problem.gradient_value(x_k)))
+
+            i= i+1
+
+        print("Number of iterations Bad Broyden:", i-1)
+        return x_k
+
     def minimize_bfgs(self, x_k, tol= 1e-10, maxIters = 50, save_H = False  ):
         
         """

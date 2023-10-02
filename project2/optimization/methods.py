@@ -41,7 +41,7 @@ class OptimizationMethod:
             x_init, "classic", step_size, stopping_criteria, maxIters
         )
 
-    def Newton_with_exact_line_search(
+    def newton_with_exact_line_search(
         self, x_init, step_size=0.00001, stopping_criteria=1e-20, maxIters=50
     ):
         return self.Newton_help_method(
@@ -55,7 +55,7 @@ class OptimizationMethod:
             x_init, "inexact_line_search", step_size, stopping_criteria, maxIters
         )
 
-    def Newton_help_method(
+    def newton_help_method(
         self,
         x_init,
         line_search,
