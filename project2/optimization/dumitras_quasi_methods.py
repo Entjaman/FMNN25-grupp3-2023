@@ -80,10 +80,7 @@ class QuasiNewtonMethod(OptimizationMethod):
         i = 0
         
         while i < maxIters and  np.linalg.norm(self.opt_problem.gradient_value(x_k)) > tol  :
-            try:
-              np.linalg.cholesky(H_k)
-            except:
-              return False
+            np.linalg.cholesky(H_k) # cholesky decomposition of H_k
            
             alfa_k = self.line_search_wolfe(x_k, s_k)
             delta_k =alfa_k * s_k
