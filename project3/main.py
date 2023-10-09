@@ -2,81 +2,99 @@ from mpi4py import MPI
 import numpy as np
 from scipy.linalg import solve 
 from scipy.sparse import csr_matrix
+from room import Room
 
 # Initialize MPI
 comm = MPI.Comm.Clone( MPI.COMM_WORLD )
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-# Define room-specific variables, boundary conditions, and parameters
-# Define initial temperature values for omega1 and omega2 based on rank
+dx = 1/3 
 
 # Define room-specific variables, boundary conditions, and parameters
-# Define initial temperature values for each room based on rank
-## TODO m
-if rank == 0:  # Room 1
-    u_k = np.ones((2, 1)) * 15.0
-elif rank == 1:  # Room 2
-    u_k = np.ones((2, 2)) * 15.0
-elif rank == 2:  # Room 3
-    u_k = np.ones((2, 1)) * 15.0
+## ROOM 2
+room_two = Room(np.array([1,2]),dx) # size 1x2
+room_two.create_walls(5,40,15,15)
+u_two = room_two.solve()
 
-# Define relaxation parameter (w)
+## ROOM 1
+room_one = Room(np.array([1,1]),dx) # size 1x1
+room_one.create_walls(15,15,15,40)
+u_one = room_one.solve()
+u1_km1 = u_one
+
+## ROOM 3
+room_three = Room(np.array([1,1]),dx) # size 1x1
+room_three.create_walls(15,15,40,15)
+u_three = room_three.solve()
+u3_km1 = u_three
+
+
+# rank 0 is room 2
+# rank 1 is room 1
+# rank 2 is room 3
+
 omega = 0.8
-dx = 1/20
-
-# row indices, column indices and values
-rowptr = np.array([0, 0, 1, 1, 1, 2, 2, 2, 3, 3])
-colind = np.array([0, 1, 0, 1, 2, 1, 2, 3, 2, 3])
-values = np.array([-2.,1.,1.,-2.,1.,1.,-2.,1.,1.,-2.])
-# create sparse from COO format
-A = csr_matrix( (values, (rowptr, colind)) )
-
-# setup right hand side
-b = np.array([1.,2.,2.,1.])
+iterations_count = 10
 
 # Main iterative loop
-for iteration in range(10):
-    # Step 1: On Room 2, obtain v_k_r and send to Room 1
-    if rank == 1:
-        v_k_r = np.copy(u_k[:, -1])  # Extract the right boundary values of Room 2
-        print("P[",rank,"] sent data =",v_k_r)
-        comm.send(v_k_r, dest=0)
+for iter in range(iterations_count):
+    # Step 1: On Room 2, obtain v_k_r for room 1 and 3 and send new  bound to Room 1 and Room 3
+    if rank == 0: # TODO maybe modify rank nbr after order and not by room order
+        print("Rank is 0")
+        if(iter==0): #first iteration
+            ## TODO intitial solver from Room for room 2
+            break
+        else:
+            b1 = comm.recv(source = 1) # boundary for room 1
+            b3 = comm.recv(source = 2) # boundary for room 3
+            ## TODO update boundaries for room1 and 3 with b1 and b3
+            ## TODO solve room 2 with new boundaries
+
+        ## TODO calculated_bound1 = ... calc new boundary for room 1 from room 2
+        ## TODO calculated_bound3 = ... calc new boundary for room 3 from room 2
+
+        ## TODO comm.send(calculated_bound1, dest = 1)
+        ## TODO comm.send(calculated_bound3, dest = 2)
 
     # Step 2: On Room 1, receive v_k_r from Room 2 and solve left system
-    if rank == 0:
-        # Receive v_k_r from Room 2
-        v_k_r = comm.recv(source=1)
-
-        # Solve the left system with v_k_r as Dirichlet condition
-        left_matrix = np.zeros((2, 2))  # Define the left matrix based on your problem
-        right_vector = np.zeros((2, 1))  # Define the right vector based on your problem
-
-        # Fill in the left_matrix and right_vector based on your problem
-
-        # Solve the left system using scipy.linalg.solve
-        u_k[:, 0] = solve(A, b).flatten()
-
-        # Calculate the Neumann condition at r
-        n_c = (u_k[1, 0] - 2 * u_k[0, 0] + v_k_r[0]) / (dx**2)  # 2nd order central differences
-
-        # Send the computed Neumann condition to Room 2
-        print("P[",rank,"] sent data =",n_c)
-        comm.send(n_c, dest=1)
-
-    # Step 3: On Room 2, receive data from Room 1 and solve the right system
     if rank == 1:
-        n_c = comm.recv(source=0)  # Receive Neumann condition from Room 1
-        u_k[:, -1] = n_c  # Set the right boundary values of Room 2 using Neumann condition
+        print("Rank is 1")
+        bounds_r1 = comm.recv(source = 0)
+       
+       ## TODO update boundaries for room 1
+        u1_kp1 = room_one.solve()
+        u1_kp1 = omega*u1_kp1 +(1-omega)*u1_km1
+        u1_km1 = u1_kp1
+        comm.send(u1_kp1, dest = 0) ## send to room 2
 
-        # Solve the right system with Neumann condition to obtain u_k+1_r
-        u_k[:, -1] = solve(A, n_c).flatten()
+    if rank == 2:
+        print("Rank is 2")
+        bounds_r3 = comm.recv(source = 0)
+       
+        ## TODO update boundaries for room 3
+        u3_kp1 = room_three.solve()
+        u3_kp1 = omega*u3_kp1 + (1-omega)*u3_km1
+        u3_km1 = u3_kp1
+        comm.send(u3_kp1, dest = 0)
 
-    # Step 4: Relaxation
-    u_k = omega * u_k + (1 - omega) * u_k  # Apply relaxation
+    if(iter == iterations_count-1):
+        if rank == 0:
+            comm.send(u_two, dest=3, tag=2)
+        if rank == 1:
+            comm.send(u_one, dest=3, tag=1)
+        if rank == 2:
+            comm.send(u_three, dest=3, tag=3)
 
-    # Synchronize processes
-    comm.Barrier()
+    ## TODO add if rank == 3 --> plot ...
+    if rank == 3:
+        u_one = comm.recv(source = 1, tag=1)
+        u_two = comm.recv(source=0, tag=2)
+        u_three = comm.recv(source = 2, tag=3)
+
+
+    
+    # comm.Barrier()
 
 # Finalize MPI
 MPI.Finalize()
