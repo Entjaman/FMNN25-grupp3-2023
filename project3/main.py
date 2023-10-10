@@ -60,12 +60,12 @@ for iter in range(iterations_count):
             ## solve room 2 with new boundaries
             room_two.solve()
 
-        bounds_r1 = room_two.get_boundary_values('new', 1, 0, 'left')
-        bounds_r3 = room_two.get_boundary_values('new', 1, 1, 'right')
+            bounds_r1 = room_two.get_boundary_values('new', 1, 0, 'left')
+            bounds_r3 = room_two.get_boundary_values('new', 1, 1, 'right')
 
-        comm.send(bounds_r1, dest = 1)
-        comm.send(bounds_r3, dest = 2)
-        room_two.relax(omega)
+            comm.send(bounds_r1, dest = 1)
+            comm.send(bounds_r3, dest = 2)
+            room_two.relax(omega)
 
     # Step 2: On Room 1, receive v_k_r from Room 2 and solve left system
     if rank == 1:
