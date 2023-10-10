@@ -16,7 +16,7 @@ dx = 1/20
 ## ROOM 2
 room_two = Room(np.array([1,2]),dx) # size 1x2
 room_two.create_walls(5,40,15,15)
-u_two = room_two.solve()
+room_two.solve()
 room_two.update()
 u_two_new_left = room_two.get_boundary_values('old', 1, 0, 'left')
 u_two_new_right = room_two.get_boundary_values('old', 1, 1, 'right')
@@ -24,14 +24,14 @@ u_two_new_right = room_two.get_boundary_values('old', 1, 1, 'right')
 ## ROOM 1
 room_one = Room(np.array([1,1]),dx) # size 1x1
 room_one.create_walls(15,15,15,40)
-u_one = room_one.solve()
+room_one.solve()
 room_one.update()
 room_one.add_neumann_wall('right',u_two_new_left)
 
 ## ROOM 3
 room_three = Room(np.array([1,1]),dx) # size 1x1
 room_three.create_walls(15,15,40,15)
-u_three = room_three.solve()
+room_three.solve()
 room_three.update()
 room_three.add_neumann_wall('left',u_two_new_right)
 

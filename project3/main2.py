@@ -16,7 +16,7 @@ dx = 1/20
 ## ROOM 2
 room_two = Room(np.array([1,2]),dx) # size 1x2
 room_two.create_walls(5,40,15,15)
-u_two = room_two.solve()
+room_two.solve()
 room_two.update()
 u_two_new_left = room_two.get_boundary_values('old', 1, 0, 'left')
 u_two_new_right = room_two.get_boundary_values('old', 1, 1, 'right')
@@ -25,21 +25,21 @@ u_two_new_right2 = room_two.get_boundary_values('old', 0.5, 0.5, 'right')
 ## ROOM 1
 room_one = Room(np.array([1,1]),dx) # size 1x1
 room_one.create_walls(15,15,15,40)
-u_one = room_one.solve()
+room_one.solve()
 room_one.update()
 room_one.add_neumann_wall('right',u_two_new_left)
 
 ## ROOM 3
 room_three = Room(np.array([1,1]),dx) # size 1x1
 room_three.create_walls(15,15,40,15)
-u_three = room_three.solve()
+room_three.solve()
 room_three.update()
 room_three.add_neumann_wall('left',u_two_new_right)
 
 ## ROOM 4
 room_four = Room(np.array([0.5,0.5]),dx) 
 room_four.create_walls(40,15,15,15) # bottom, top, right, left
-u_four = room_four.solve()
+room_four.solve()
 room_four.update()
 room_four.add_neumann_wall('left',u_two_new_right2)
 
@@ -120,7 +120,7 @@ for iter in range(iterations_count):
         room_four.update_neuman_condition('left', bounds_r4)
         room_four.solve()
         room_four.relax(omega)
-        u4_kp1 = room_four.get_boundary_values('old',0.5,0.5,'right')
+        u4_kp1 = room_four.get_boundary_values('old',0.5,0,'right')
 
         comm.send(u4_kp1, dest = 0)
 
@@ -128,27 +128,27 @@ for iter in range(iterations_count):
     if(iter == iterations_count-1):
         if rank == 0:
             # comm.send(u_two, dest=3, tag=2)
-            u_2 = np.flipud(np.reshape(room_two.u_current,(6,3)))
+            u_2 = np.flipud(np.reshape(room_two.u_current,(40,40)))
             print('matrix two', u_2)
             plt.imshow(u_2, cmap='hot', interpolation='nearest')
             plt.show()
         if rank == 1:
-            u_1 = np.flipud(np.reshape(room_one.u_current,(3,4)))
+            u_1 = np.flipud(np.reshape(room_one.u_current,(20,21)))
             print('matrix one', u_1)
             plt.imshow(u_1, cmap='hot', interpolation='nearest')
             plt.show()
             # comm.send(u_one, dest=3, tag=1)
         if rank == 2:
-            u_3 = np.flipud(np.reshape(room_three.u_current,(3,4)))
+            u_3 = np.flipud(np.reshape(room_three.u_current,(20,21)))
             print('matrix three', u_3)
             plt.imshow(u_3, cmap='hot', interpolation='nearest')
             plt.show()
             # comm.send(u_three, dest=3, tag=3)
         if rank == 3:
-            u_4 = room_four.u_current#np.flipud(np.reshape(room_four.u_current,(3,4)))
-            print('matrix three', u_4)
-            # plt.imshow(u_4, cmap='hot', interpolation='nearest')
-            # plt.show()
+            u_4 = np.flipud(np.reshape(room_four.u_current,(10,11)))
+            print('matrix four', u_4)
+            plt.imshow(u_4, cmap='hot', interpolation='nearest')
+            plt.show()
             # comm.send(u_three, dest=3, tag=3)
 
     # ## TODO add if rank == 3 --> plot ...
