@@ -51,7 +51,6 @@ for iter in range(iterations_count):
             bounds_r3 = room_two.get_boundary_values('old', 1, 1, 'right')
             comm.send(bounds_r1, dest = 1)
             comm.send(bounds_r3, dest = 2)
-            room_two.relax(omega)
         else:
             u_one_old = comm.recv(source = 1) # boundary for room 1
             u_three_old = comm.recv(source = 2) # boundary for room 3
