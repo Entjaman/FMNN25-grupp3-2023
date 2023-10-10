@@ -47,8 +47,8 @@ for iter in range(iterations_count):
     if rank == 0: # TODO maybe modify rank nbr after order and not by room order
         print("Rank is 0")
         if(iter==0): #first iteration
-            bounds_r1 = room_two.get_boundary_values('new', 1, 0, 'left')
-            bounds_r3 = room_two.get_boundary_values('new', 1, 1, 'right')
+            bounds_r1 = room_two.get_boundary_values('old', 1, 0, 'left')
+            bounds_r3 = room_two.get_boundary_values('old', 1, 1, 'right')
             comm.send(bounds_r1, dest = 1)
             comm.send(bounds_r3, dest = 2)
             room_two.relax(omega)
