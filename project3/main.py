@@ -3,6 +3,7 @@ import numpy as np
 from scipy.linalg import solve 
 from scipy.sparse import csr_matrix
 from room import Room
+from matplotlib import pyplot as plt
 
 # Initialize MPI
 comm = MPI.Comm.Clone( MPI.COMM_WORLD )
@@ -98,12 +99,21 @@ for iter in range(iterations_count):
     if(iter == iterations_count-1):
         if rank == 0:
             # comm.send(u_two, dest=3, tag=2)
-            print('matrix two', np.reshape(room_two.u_current,(6,3)))
+            u_2 = np.flipud(np.reshape(room_two.u_current,(6,3)))
+            print('matrix two', u_2)
+            plt.imshow(u_2, cmap='hot', interpolation='nearest')
+            plt.show()
         if rank == 1:
-            print('matrix one', np.reshape(room_one.u_current,(3,4)))
+            u_1 = np.flipud(np.reshape(room_one.u_current,(3,4)))
+            print('matrix one', u_1)
+            plt.imshow(u_1, cmap='hot', interpolation='nearest')
+            plt.show()
             # comm.send(u_one, dest=3, tag=1)
         if rank == 2:
-            print('matrix three', np.reshape(room_three.u_current,(3,4)))
+            u_3 = np.flipud(np.reshape(room_three.u_current,(3,4)))
+            print('matrix three', u_3)
+            plt.imshow(u_3, cmap='hot', interpolation='nearest')
+            plt.show()
             # comm.send(u_three, dest=3, tag=3)
 
     # ## TODO add if rank == 3 --> plot ...
