@@ -43,6 +43,7 @@ iterations_count = 10
 
 # Main iterative loop
 for iter in range(iterations_count):
+    print(iter)
     # Step 1: On Room 2, obtain v_k_r for room 1 and 3 and send new  bound to Room 1 and Room 3
     if rank == 0: # TODO maybe modify rank nbr after order and not by room order
         print("Rank is 0")
@@ -92,13 +93,18 @@ for iter in range(iterations_count):
 
         comm.send(u3_kp1, dest = 0)
 
-    # if(iter == iterations_count-1):
-    #     if rank == 0:
-    #         comm.send(u_two, dest=3, tag=2)
-    #     if rank == 1:
-    #         comm.send(u_one, dest=3, tag=1)
-    #     if rank == 2:
-    #         comm.send(u_three, dest=3, tag=3)
+     
+
+    if(iter == iterations_count-1):
+        if rank == 0:
+            # comm.send(u_two, dest=3, tag=2)
+            print('matrix two', room_two.u_current)
+        if rank == 1:
+            print('matrix one', room_one.u_current)
+            # comm.send(u_one, dest=3, tag=1)
+        if rank == 2:
+            print('matrix three', room_three.u_current)
+            # comm.send(u_three, dest=3, tag=3)
 
     # ## TODO add if rank == 3 --> plot ...
     # if rank == 3:
