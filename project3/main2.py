@@ -145,10 +145,10 @@ for iter in range(iterations_count):
             plt.show()
             # comm.send(u_three, dest=3, tag=3)
         if rank == 3:
-            u_4 = np.flipud(np.reshape(room_four.u_current,(3,4)))
+            u_4 = room_four.u_current#np.flipud(np.reshape(room_four.u_current,(3,4)))
             print('matrix three', u_4)
-            plt.imshow(u_4, cmap='hot', interpolation='nearest')
-            plt.show()
+            # plt.imshow(u_4, cmap='hot', interpolation='nearest')
+            # plt.show()
             # comm.send(u_three, dest=3, tag=3)
 
     # ## TODO add if rank == 3 --> plot ...
