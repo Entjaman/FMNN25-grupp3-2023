@@ -10,7 +10,7 @@ comm = MPI.Comm.Clone( MPI.COMM_WORLD )
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-dx = 1/3
+dx = 1/20
 
 # Define room-specific variables, boundary conditions, and parameters
 ## ROOM 2
@@ -86,7 +86,7 @@ for iter in range(iterations_count):
         print("Rank is 2")
         bounds_r3 = comm.recv(source = 0)
        
-        ## TODO update boundaries for room 3
+        ##  update boundaries for room 3
         room_three.update_neuman_condition('left', bounds_r3)
         room_three.solve()
         room_three.relax(omega)

@@ -10,7 +10,7 @@ comm = MPI.Comm.Clone( MPI.COMM_WORLD )
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-dx = 1/3
+dx = 1/20
 
 # Define room-specific variables, boundary conditions, and parameters
 ## ROOM 2
