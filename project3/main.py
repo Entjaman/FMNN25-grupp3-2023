@@ -98,12 +98,12 @@ for iter in range(iterations_count):
     if(iter == iterations_count-1):
         if rank == 0:
             # comm.send(u_two, dest=3, tag=2)
-            print('matrix two', room_two.u_current)
+            print('matrix two', np.reshape(room_two.u_current,(6,3)))
         if rank == 1:
-            print('matrix one', room_one.u_current)
+            print('matrix one', np.reshape(room_one.u_current,(3,4)))
             # comm.send(u_one, dest=3, tag=1)
         if rank == 2:
-            print('matrix three', room_three.u_current)
+            print('matrix three', np.reshape(room_three.u_current,(3,4)))
             # comm.send(u_three, dest=3, tag=3)
 
     # ## TODO add if rank == 3 --> plot ...
