@@ -99,18 +99,18 @@ for iter in range(iterations_count):
     if(iter == iterations_count-1):
         if rank == 0:
             # comm.send(u_two, dest=3, tag=2)
-            u_2 = np.flipud(np.reshape(room_two.u_current,(6,3)))
+            u_2 = np.flipud(np.reshape(room_two.u_current,(room_two.y_size,room_two.x_size)))
             print('matrix two', u_2)
             plt.imshow(u_2, cmap='hot', interpolation='nearest')
             plt.show()
         if rank == 1:
-            u_1 = np.flipud(np.reshape(room_one.u_current,(3,4)))
+            u_1 = np.flipud(np.reshape(room_one.u_current,(room_one.y_size,room_one.x_size)))
             print('matrix one', u_1)
             plt.imshow(u_1, cmap='hot', interpolation='nearest')
             plt.show()
             # comm.send(u_one, dest=3, tag=1)
         if rank == 2:
-            u_3 = np.flipud(np.reshape(room_three.u_current,(3,4)))
+            u_3 = np.flipud(np.reshape(room_three.u_current,(room_three.y_size,room_three.x_size)))
             print('matrix three', u_3)
             plt.imshow(u_3, cmap='hot', interpolation='nearest')
             plt.show()

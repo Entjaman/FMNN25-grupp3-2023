@@ -234,12 +234,16 @@ class Room():
 #def main():
 
 #initialization
-room_two = Room(np.array([1,2]),1/20)
+
+dx = 1/20
+
+
+room_two = Room(np.array([1,2]),dx)
 room_two.create_walls(5,40,15,15)
 u_two = room_two.solve()
 
-room_one = Room(np.array([1,1]),1/20)
-room_three = Room(np.array([1,1]),1/20)
+room_one = Room(np.array([1,1]),dx)
+room_three = Room(np.array([1,1]),dx)
 room_one.create_walls(15,15,15,40)
 u_one = room_one.solve()
 
@@ -261,10 +265,25 @@ u_two_new_right = room_two.get_boundary_values('old', 1, 1, 'right')
 room_one.add_neumann_wall('right',u_two_new_left)
 room_three.add_neumann_wall('left',u_two_new_right)
 
+
+u_two_new_right2 = room_two.get_boundary_values('old', 0.5, 0.5, 'right')
+room_four = Room(np.array([0.5,0.5]),dx) 
+room_four.create_walls(40,15,15,15) # bottom, top, right, left
+room_four.solve()
+room_four.update()
+room_four.add_neumann_wall('left',u_two_new_right2)
+
+
+
+
 #start the iteration
-for i in range(2):
+for i in range(10):
     u_one_old = room_one.get_boundary_values('old',1,0,'right')
     u_three_old = room_three.get_boundary_values('old',1,0,'left')
+    
+    u_four_old = room_four.get_boundary_values('old',0.5,0,'left')
+    room_two.update_dirichlt_condition('right', 0.5, u_four_old)
+    
     room_two.update_dirichlt_condition('right', 1, u_three_old)
     room_two.update_dirichlt_condition('left', 0, u_one_old)
     room_two.solve()
@@ -275,6 +294,11 @@ for i in range(2):
     room_three.update_neuman_condition('left', u_two_new_right)
     room_one.solve()
     room_three.solve()
+    
+    bounds_r4 = room_two.get_boundary_values('old', 0.5, 0.5, 'right')
+    room_four.update_neuman_condition('left', bounds_r4)
+    room_four.solve()
+    room_four.relax(0.8)
     
     #do the realaxation. 
     room_one.relax(0.8)

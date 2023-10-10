@@ -120,7 +120,7 @@ for iter in range(iterations_count):
         room_four.update_neuman_condition('left', bounds_r4)
         room_four.solve()
         room_four.relax(omega)
-        u4_kp1 = room_four.get_boundary_values('old',0.5,0,'right')
+        u4_kp1 = room_four.get_boundary_values('old',0.5,0,'left')
 
         comm.send(u4_kp1, dest = 0)
 
@@ -128,24 +128,24 @@ for iter in range(iterations_count):
     if(iter == iterations_count-1):
         if rank == 0:
             # comm.send(u_two, dest=3, tag=2)
-            u_2 = np.flipud(np.reshape(room_two.u_current,(40,40)))
+            u_2 = np.flipud(np.reshape(room_two.u_current,(room_two.y_size,room_two.x_size)))
             print('matrix two', u_2)
             plt.imshow(u_2, cmap='hot', interpolation='nearest')
             plt.show()
         if rank == 1:
-            u_1 = np.flipud(np.reshape(room_one.u_current,(20,21)))
+            u_1 = np.flipud(np.reshape(room_one.u_current,(room_one.y_size,room_one.x_size)))
             print('matrix one', u_1)
             plt.imshow(u_1, cmap='hot', interpolation='nearest')
             plt.show()
             # comm.send(u_one, dest=3, tag=1)
         if rank == 2:
-            u_3 = np.flipud(np.reshape(room_three.u_current,(20,21)))
+            u_3 = np.flipud(np.reshape(room_three.u_current,(room_three.y_size,room_three.x_size)))
             print('matrix three', u_3)
             plt.imshow(u_3, cmap='hot', interpolation='nearest')
             plt.show()
             # comm.send(u_three, dest=3, tag=3)
         if rank == 3:
-            u_4 = np.flipud(np.reshape(room_four.u_current,(10,11)))
+            u_4 = np.flipud(np.reshape(room_four.u_current,(room_four.y_size,room_four.x_size)))
             print('matrix four', u_4)
             plt.imshow(u_4, cmap='hot', interpolation='nearest')
             plt.show()
