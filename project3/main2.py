@@ -131,23 +131,27 @@ for iter in range(iterations_count):
             u_2 = np.flipud(np.reshape(room_two.u_current,(room_two.y_size,room_two.x_size)))
             print('matrix two', u_2)
             plt.imshow(u_2, cmap='hot', interpolation='nearest')
+            plt.colorbar()
             plt.show()
         if rank == 1:
             u_1 = np.flipud(np.reshape(room_one.u_current,(room_one.y_size,room_one.x_size)))
             print('matrix one', u_1)
             plt.imshow(u_1, cmap='hot', interpolation='nearest')
+            plt.colorbar()
             plt.show()
             # comm.send(u_one, dest=3, tag=1)
         if rank == 2:
             u_3 = np.flipud(np.reshape(room_three.u_current,(room_three.y_size,room_three.x_size)))
             print('matrix three', u_3)
             plt.imshow(u_3, cmap='hot', interpolation='nearest')
+            plt.colorbar()
             plt.show()
             # comm.send(u_three, dest=3, tag=3)
         if rank == 3:
             u_4 = np.flipud(np.reshape(room_four.u_current,(room_four.y_size,room_four.x_size)))
             print('matrix four', u_4)
             plt.imshow(u_4, cmap='hot', interpolation='nearest')
+            plt.colorbar()
             plt.show()
             # comm.send(u_three, dest=3, tag=3)
 
